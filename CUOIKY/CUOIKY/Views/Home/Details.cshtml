@@ -1,0 +1,245 @@
+﻿@using CUOIKY.Helpers
+@using Microsoft.AspNetCore.Hosting
+@using CUOIKY.Models
+@inject IHostingEnvironment HostingEnvironment
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery antiforgery
+@model CUOIKY.Repository.Models.Product
+
+@{
+    var userSession = SessionHelper.GetObjectFromJson<UserModel>(Context.Session, "user");
+}
+
+<input type="hidden" id="RequestVerificationToken" name="__RequestVerificationToken" value="@antiforgery.GetAndStoreTokens(Context).RequestToken" />
+
+
+<div class="container my-5">
+    <div class="row">
+        <!-- Left column: Images -->
+        <div class="col-md-6">
+            <div class="position-relative border border-info rounded shadow-lg p-2 bg-light" style="height: 400px;">
+                @if (Model?.Description?.Images != null && Model.Description.Images.Any())
+                {
+                    var mainImage = Model.Description.Images.First();
+                    var imagePath = $"wwwroot/Image/{mainImage.ImageName}";
+
+                    if (System.IO.File.Exists(imagePath))
+                    {
+                        <!-- Main Image with Navigation Arrows -->
+                        <img src="~/Image/@mainImage.ImageName"
+                             class="img-fluid mb-3 rounded main-image shadow-sm"
+                             alt="Main Product Image"
+                             style="object-fit: cover; width: 100%; height: 100%;" />
+                    }
+                    else
+                    {
+                        <div class="d-flex align-items-center justify-content-center bg-secondary text-white rounded" style="height: 100%;">
+                            <span class="text-center" style="font-size: 1.5rem;">No Image Available</span>
+                        </div>
+                    }
+
+                    <!-- Navigation Buttons for multiple images -->
+                    @if (Model?.Description?.Images != null && Model.Description.Images.Count() > 1)
+                    {
+                        <button class="btn btn-outline-info position-absolute top-50 start-0 translate-middle-y arrow-btn"
+                                id="prevImageBtn" style="font-size: 1.5rem; padding: 0.5rem;">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="btn btn-outline-info position-absolute top-50 end-0 translate-middle-y arrow-btn"
+                                id="nextImageBtn" style="font-size: 1.5rem; padding: 0.5rem;">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    }
+                }
+                else
+                {
+                    <div class="d-flex align-items-center justify-content-center bg-secondary text-white rounded" style="height: 100%;">
+                        <span class="text-center" style="font-size: 1.5rem;">No Image Available</span>
+                    </div>
+                }
+            </div>
+
+            <!-- Thumbnail Images (Limited to 5) -->
+            @if (Model?.Description?.Images != null && Model.Description.Images.Any())
+            {
+                <div class="d-flex flex-wrap gap-2 mt-3">
+                    @foreach (var image in Model.Description.Images.Take(5))
+                    {
+                        var thumbnailPath = $"wwwroot/Image/{image.ImageName}";
+
+                        if (System.IO.File.Exists(thumbnailPath))
+                        {
+                            <img src="~/Image/@image.ImageName"
+                                 class="img-thumbnail border rounded"
+                                 alt="Thumbnail Image"
+                                 style="width: 100px; height: 100px; object-fit: cover; cursor: pointer; border-color: #17a2b8;"
+                                 onclick="openImageModal('@image.ImageName')" />
+                        }
+                    }
+                </div>
+            }
+        </div>
+
+        <!-- Right column: Product Information -->
+        <div class="col-md-6">
+            <div class="p-4 rounded border shadow-lg" style="background-color: #1a2a3a; color: #e0e0e0; border-color: #2a4a6a;">
+                <h3 class="fw-bold text-light mb-4">Mã: @Model.ProductId</h3>
+                <p class="text-light">@Model.Description?.Description1</p>
+
+                <!-- Quantity and Status -->
+                <p class="mb-3"><strong>Quantity:</strong> <span class="text-info">@Model.Quantity</span></p>
+                <p class="mb-3"><strong>Status:</strong> <span class="text-success">@((Model.StatusSell == true) ? "Available" : "Not for Sale")</span></p>
+
+                <!-- Information Boxes -->
+                <div class="d-flex flex-wrap gap-3 mt-3">
+                    @if (Model.Description?.Server > 0)
+                    {
+                        <div class="p-2 border rounded bg-dark text-info border-info shadow-sm">
+                            <strong>Server:</strong> <span>@Model.Description.Server</span>
+                        </div>
+                    }
+                    @if (Model.Description?.Planet > 0)
+                    {
+                        <div class="p-2 border rounded bg-dark text-info border-info shadow-sm">
+                            <strong>Planet:</strong> <span>@Model.Description.Planet</span>
+                        </div>
+                    }
+                    @if (Model.Description?.Disciple == true)
+                    {
+                        <div class="p-2 border rounded bg-dark text-info border-info shadow-sm">
+                            <strong>Disciple</strong>
+                        </div>
+                    }
+                    @if (Model.Description?.Portal == true)
+                    {
+                        <div class="p-2 border rounded bg-dark text-info border-info shadow-sm">
+                            <strong>Portal</strong>
+                        </div>
+                    }
+                </div>
+
+                <!-- Price Information -->
+                <h4 class="text-info mt-4">
+                    Price: @((Model.Description?.Price.HasValue ?? false) ? Model.Description.Price.Value.ToString("C0") : "N/A")
+                </h4>
+
+                <!-- Action Buttons -->
+                <div class="mt-4">
+                    @if (userSession != null)
+                    {
+                        <button class="btn btn-success me-3 btn-lg px-4 py-2 shadow-sm" onclick="addToCart(@Model.ProductId)">
+                            <i class="fas fa-cart-plus"></i> Thêm vào giỏ hàng
+                        </button>
+                        <button class="btn btn-primary btn-lg px-4 py-2 shadow-sm" onclick="buyNow(@Model.ProductId)">
+                            <i class="fas fa-credit-card"></i> Mua ngay
+                        </button>
+                    }
+                    else
+                    {
+                        <a href="@Url.Action("Login", "User")" class="btn btn-primary btn-lg px-4 py-2 shadow-sm">
+                            <i class="fas fa-sign-in-alt"></i> Đăng nhập để mua hàng
+                        </a>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Viewing Images -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body">
+                <img id="modalImage" class="img-fluid" alt="Product Image" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts for Image Modal and Navigation -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script type="text/javascript">
+    function buyNow(productId) {
+        const token = document.getElementById('RequestVerificationToken').value;
+
+        $.ajax({
+            url: '@Url.Action("BuyProduct", "User")',
+            type: 'POST',
+            contentType: 'application/json',
+            headers: {
+                'RequestVerificationToken': token
+            },
+            data: JSON.stringify({ productId: productId }), // Gửi dưới dạng đối tượng JSON
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    // Điều hướng đến trang xác nhận hoặc lịch sử đơn hàng
+                    // window.location.href = '/User/OrderHistory';
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Có lỗi xảy ra:", error);
+                alert("Có lỗi xảy ra khi thực hiện giao dịch. Vui lòng thử lại.");
+            }
+        });
+    }
+
+
+
+    function addToCart(productId) {
+        $.ajax({
+            url: '@Url.Action("AddToCart", "Cart")',
+            type: 'POST',
+            data: { id: productId },
+            success: function (response) {
+                alert("Sản phẩm đã được thêm vào giỏ hàng!");
+                updateCartItemCount();
+            },
+            error: function (xhr, status, error) {
+                console.log("Có lỗi xảy ra: " + error);
+            }
+        });
+    }
+
+    function updateCartItemCount() {
+        $.ajax({
+            url: '@Url.Action("GetCartItemCount", "Cart")',
+            type: 'GET',
+            success: function (count) {
+                $('#cart-count').text(count);
+            },
+            error: function (xhr, status, error) {
+                console.log("Có lỗi xảy ra khi cập nhật giỏ hàng: " + error);
+            }
+        });
+    }
+
+    function openImageModal(imageName) {
+        document.getElementById('modalImage').src = '/Image/' + imageName;
+        var modal = new bootstrap.Modal(document.getElementById('imageModal'));
+        modal.show();
+    }
+
+    // Image navigation logic
+    let currentImageIndex = 0;
+    const images = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Description?.Images?.Select(i => i.ImageName)));
+
+    if (images && images.length > 1) {
+        document.getElementById('prevImageBtn').addEventListener('click', function () {
+            currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+            document.querySelector('.main-image').src = '/Image/' + images[currentImageIndex];
+        });
+
+        document.getElementById('nextImageBtn').addEventListener('click', function () {
+            currentImageIndex = (currentImageIndex + 1) % images.length;
+            document.querySelector('.main-image').src = '/Image/' + images[currentImageIndex];
+        });
+    }
+</script>

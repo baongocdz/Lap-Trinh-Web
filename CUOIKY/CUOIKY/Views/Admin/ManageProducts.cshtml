@@ -1,0 +1,70 @@
+﻿@model List<CUOIKY.Repository.Models.Product>
+
+<div class="container my-5">
+    <h2 class="text-center">Quản lý sản phẩm</h2>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <a href="@Url.Action("AddProduct", "Admin")" class="btn btn-primary mb-3">Thêm sản phẩm mới</a>
+
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>#</th>
+                <th>Tên tài khoản</th>
+                <th>Loại sản phẩm</th>
+                <th>Số lượng</th>
+                <th>Trạng thái</th>
+                <th>Giá</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var product in Model)
+            {
+                <tr>
+                    <td>@product.ProductId</td>
+                    <td>@product.UserName</td>
+                    <td>@product.ProductTypeId</td>
+                    <td>@product.Quantity</td>
+                    <td>@(product.StatusSell == true ? "Đang bán" : "Ngừng bán")</td>
+                    <td>@(product.Description?.Price?.ToString("C0") ?? "N/A")</td>
+                    <td>
+                        <a href="@Url.Action("EditProduct", "Admin", new { id = product.ProductId })" class="btn btn-warning btn-sm">Sửa</a>
+                        <button class="btn btn-danger btn-sm" onclick="deleteProduct(@product.ProductId)">Xóa</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function deleteProduct(productId) {
+        if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("DeleteProduct", "Admin")',
+            type: 'POST',
+            data: { id: productId },
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    location.reload();
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function () {
+                alert("Có lỗi xảy ra, vui lòng thử lại.");
+            }
+        });
+    }
+</script>

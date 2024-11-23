@@ -1,0 +1,1 @@
+Scaffold-DbContext "Data Source=NGOCDZ\SQLEXPRESS02;Initial Catalog=LTW;Integrated Security=True;Trust Server Certificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Repository/Models -ContextDir Repository -Context LTWDbContext -Force

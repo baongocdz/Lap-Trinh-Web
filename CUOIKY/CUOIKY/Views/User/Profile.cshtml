@@ -1,0 +1,34 @@
+﻿@model CUOIKY.Models.UserModel
+
+@{
+    ViewData["Title"] = "User Profile";
+}
+
+<h2>User Profile</h2>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>Username:</strong> @Model.UserNameString</p>
+        <p><strong>Email:</strong> @Model.Gmail</p>
+        <p><strong>Balance:</strong> @Model.Balance?.ToString("C")</p>
+
+        @if (Model.RoleId == 1)
+        {
+            <!-- Admin-specific information -->
+            <h3>Admin Information</h3>
+            <p>Welcome, Admin! You have full access to the system.</p>
+            <!-- Add more admin-specific details here if needed -->
+        }
+        else if (Model.RoleId == 2)
+        {
+            <!-- User-specific information -->
+            <h3>User Information</h3>
+            <p>Welcome, valued user! Here is your profile information.</p>
+            <!-- Add more user-specific details here if needed -->
+        }
+        else
+        {
+            <p><strong>Role:</strong> Unspecified</p>
+        }
+    </div>
+</div>

@@ -1,0 +1,174 @@
+﻿@model CUOIKY.Models.AddProductModel
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<h2 class="text-center">@ViewData["Title"]</h2>
+
+<!-- Thông báo lỗi -->
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger">
+        Please fix the errors below and try again.
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<div class="container my-5">
+    <form asp-action="AddProduct" method="post" enctype="multipart/form-data">
+        <div class="row g-4">
+            <!-- Left Column -->
+            <div class="col-md-6">
+                <!-- Product Information Card -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title">Product Information</h4>
+                        <!-- Product Type Dropdown -->
+                        <div class="form-group mb-3">
+                            <label asp-for="ProductTypeId" class="form-label">Product Type</label>
+                            <select asp-for="ProductTypeId" class="form-select">
+                                <option value="1">Account</option>
+                                <option value="2">Item</option>
+                            </select>
+                            <span asp-validation-for="ProductTypeId" class="text-danger"></span>
+                        </div>
+
+                        <!-- Quantity Field (default is 1) -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Quantity" class="form-label">Quantity</label>
+                            <input asp-for="Quantity" type="number" class="form-control" min="1" value="1" />
+                            <span asp-validation-for="Quantity" class="text-danger"></span>
+                        </div>
+
+                        <!-- Price Field -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Price" class="form-label">Price</label>
+                            <input asp-for="Price" type="number" step="0.01" class="form-control" />
+                            <span asp-validation-for="Price" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Details Card -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <h4 class="card-title">Account Details</h4>
+                        <!-- Username Field -->
+                        <div class="form-group mb-3">
+                            <label asp-for="UserName" class="form-label">Username</label>
+                            <input asp-for="UserName" class="form-control" />
+                            <span asp-validation-for="UserName" class="text-danger"></span>
+                        </div>
+
+                        <!-- Password Field -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Password" class="form-label">Password</label>
+                            <input asp-for="Password" type="password" class="form-control" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <!-- Gmail Field -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Gmail" class="form-label">Gmail</label>
+                            <input asp-for="Gmail" type="email" class="form-control" />
+                            <span asp-validation-for="Gmail" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="col-md-6">
+                <!-- Product Details Card -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title">Product Details</h4>
+
+                        <!-- Description Textarea -->
+                        <div class="form-group mb-3">
+                            <label asp-for="DescriptionText" class="form-label">Description</label>
+                            <textarea asp-for="DescriptionText" class="form-control"></textarea>
+                            <span asp-validation-for="DescriptionText" class="text-danger"></span>
+                        </div>
+
+                        <!-- Server Field with Predefined Options -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Server" class="form-label">Server</label>
+                            <select asp-for="Server" class="form-select">
+                                @for (int i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i">Server @i</option>
+                                }
+                            </select>
+                            <span asp-validation-for="Server" class="text-danger"></span>
+                        </div>
+
+                        <!-- Planet Field with Readable Options -->
+                        <div class="form-group mb-3">
+                            <label asp-for="Planet" class="form-label">Planet</label>
+                            <select asp-for="Planet" class="form-select">
+                                <option value="1">Xayda</option>
+                                <option value="2">Namec</option>
+                                <option value="3">Trái đất</option>
+                            </select>
+                            <span asp-validation-for="Planet" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Details Card -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <h4 class="card-title">Additional Details</h4>
+                        <!-- Status Sell Checkbox -->
+                        <div class="form-group form-check mb-3">
+                            <input asp-for="StatusSell" class="form-check-input" type="checkbox" />
+                            <label asp-for="StatusSell" class="form-check-label">Available for Sale</label>
+                            <span asp-validation-for="StatusSell" class="text-danger"></span>
+                        </div>
+
+                        <!-- Disciple Checkbox -->
+                        <div class="form-group form-check mb-3">
+                            <input asp-for="Disciple" type="checkbox" class="form-check-input" />
+                            <label asp-for="Disciple" class="form-check-label">Disciple</label>
+                            <span asp-validation-for="Disciple" class="text-danger"></span>
+                        </div>
+
+                        <!-- Portal Checkbox -->
+                        <div class="form-group form-check mb-3">
+                            <input asp-for="Portal" type="checkbox" class="form-check-input" />
+                            <label asp-for="Portal" class="form-check-label">Portal</label>
+                            <span asp-validation-for="Portal" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image Upload Card -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body">
+                        <h4 class="card-title">Upload Images</h4>
+                        <div class="form-group mb-3">
+                            <input type="file" asp-for="Images" class="form-control" multiple />
+                            <span asp-validation-for="Images" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-center mt-5">
+            <button type="submit" class="btn btn-primary">Add Product</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
