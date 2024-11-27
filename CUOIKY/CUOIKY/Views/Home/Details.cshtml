@@ -83,14 +83,15 @@
         <div class="col-md-6">
             <div class="p-4 rounded border shadow-lg" style="background-color: #1a2a3a; color: #e0e0e0; border-color: #2a4a6a;">
                 <h3 class="fw-bold text-light mb-4">Mã: @Model.ProductId</h3>
-                <p class="text-light">@Model.Description?.Description1</p>
+                <h4 class="text-light"><strong>Mô tả: </strong>@Model.Description?.Description1</h4>
 
                 <!-- Quantity and Status -->
-                <p class="mb-3"><strong>Quantity:</strong> <span class="text-info">@Model.Quantity</span></p>
-                <p class="mb-3"><strong>Status:</strong> <span class="text-success">@((Model.StatusSell == true) ? "Available" : "Not for Sale")</span></p>
+                <p class="mb-3"><strong>Số lượng:</strong> <span class="text-info">@Model.Quantity</span></p>
+                <p class="mb-3"><strong>Trạng thái:</strong> <span class="text-success">@((Model.StatusSell == true) ? "Available" : "Not for Sale")</span></p>
+                <p class="mb-3"><strong>Mặt hàng:</strong> <span class="text-success">@GetProductTypeName(Model.Description.Product.ProductTypeId)</span></p>
 
                 <!-- Information Boxes -->
-                <div class="d-flex flex-wrap gap-3 mt-3">
+                <div class="d-flex flex-wrap gap-3 mt-3">>
                     @if (Model.Description?.Server > 0)
                     {
                         <div class="p-2 border rounded bg-dark text-info border-info shadow-sm">
@@ -243,3 +244,17 @@
         });
     }
 </script>
+@functions {
+    private string GetProductTypeName(int? ProductTypeID)
+    {
+        switch (ProductTypeID)
+        {
+            case 1:
+                return "Tài Khoản Game";
+            case 2:
+                return "Vật Phẩm Game";
+            default:
+                return "Không xác định";
+        }
+    }
+}

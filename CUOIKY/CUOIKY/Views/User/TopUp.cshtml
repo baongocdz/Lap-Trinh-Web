@@ -1,0 +1,36 @@
+﻿@{
+    ViewBag.Title = "Nạp tiền";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Nạp tiền</h2>
+    <div class="row align-items-center">
+        <!-- Thông tin chuyển khoản bên trái -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 p-4">
+                <h4 class="text-primary">Thông tin chuyển khoản</h4>
+                <p><strong>Ngân hàng:</strong> BIDV - CN Bình Dương</p>
+                <p><strong>Tên tài khoản:</strong> NGUYEN VAN BAO NGOC</p>
+                <p><strong>Số tài khoản:</strong> 6505096039</p>
+                <p class="text-danger"><strong>Lưu ý:</strong> Ghi rõ nội dung chuyển khoản để hệ thống xử lý nhanh nhất.</p>
+
+                <!-- Form nạp tiền -->
+                <form method="post" asp-action="TopUp">
+                    <div class="form-group">
+                        <label for="amount">Số tiền cần nạp:</label>
+                        <input type="number" class="form-control" id="amount" name="amount" required min="1" placeholder="Nhập số tiền (VNĐ)" />
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">Nạp tiền</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Ảnh QR bên phải -->
+        <div class="col-md-6 text-center">
+            <div class="card shadow-sm border-0 p-4">
+                <h4 class="text-primary">Quét mã QR để chuyển khoản</h4>
+                <img src="~/Image/Icons/CK.jpg" alt="Mã QR" class="img-fluid rounded" style="max-width: 300px;" />
+            </div>
+        </div>
+    </div>
+</div>

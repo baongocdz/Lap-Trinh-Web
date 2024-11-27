@@ -1,0 +1,85 @@
+﻿@using CUOIKY.Models
+@{
+    ViewBag.Title = "Thống kê";
+    var orderStats = ViewBag.OrderStats as List<OrderStatistics>;
+    var topUpStats = ViewBag.TopUpStats as List<TopUpStatistics>;
+    var combinedStats = ViewBag.CombinedStats as List<CombinedStatistics>;
+}
+
+<div class="container mt-5">
+    <h2 class="text-center">Thống kê</h2>
+    <form method="get" asp-action="Statistics" class="d-flex justify-content-center mb-4">
+        <select name="filter" class="form-select w-auto me-3">
+            <option value="month" selected>Thống kê theo tháng</option>
+            <option value="quarter">Thống kê theo quý</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Xem thống kê</button>
+    </form>
+
+    <h3 class="mt-4">Thống kê đơn hàng</h3>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Kỳ</th>
+                <th>Tổng số đơn hàng</th>
+                <th>Tổng doanh thu (VNĐ)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var stat in orderStats)
+            {
+                <tr>
+                    <td>@stat.Period</td>
+                    <td>@stat.TotalOrders</td>
+                    <td>@stat.TotalRevenue.ToString("#,##0") đ</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3 class="mt-4">Thống kê nạp tiền</h3>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Kỳ</th>
+                <th>Tổng số giao dịch nạp</th>
+                <th>Tổng số tiền nạp (VNĐ)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var stat in topUpStats)
+            {
+                <tr>
+                    <td>@stat.Period</td>
+                    <td>@stat.TotalTopUps</td>
+                    <td>@stat.TotalAmount.ToString("#,##0") đ</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3 class="mt-4">Thống kê tổng hợp</h3>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Kỳ</th>
+                <th>Tổng số đơn hàng</th>
+                <th>Tổng doanh thu (VNĐ)</th>
+                <th>Tổng số giao dịch nạp</th>
+                <th>Tổng số tiền nạp (VNĐ)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var stat in combinedStats)
+            {
+                <tr>
+                    <td>@stat.Period</td>
+                    <td>@stat.TotalOrders</td>
+                    <td>@stat.TotalRevenue.ToString("#,##0") đ</td>
+                    <td>@stat.TotalTopUps</td>
+                    <td>@stat.TotalAmount.ToString("#,##0") đ</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

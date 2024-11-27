@@ -1,0 +1,36 @@
+﻿@model List<CUOIKY.Repository.Models.Transaction>
+
+@{
+    ViewBag.Title = "Quản lý nạp tiền";
+}
+
+<h2>Quản lý nạp tiền</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Người dùng</th>
+            <th>Số tiền</th>
+            <th>Ngày yêu cầu</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var request in Model)
+        {
+            <tr>
+                <td>@request.TransactionId</td>
+                <td>@request.User.UserNameString</td>
+                <td>@request.Amount.ToString("#,##0") đ</td>
+                <td>@request.RequestDate.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>
+                    <form method="post" asp-action="ApproveTopUp" asp-controller="Admin">
+                        <input type="hidden" name="id" value="@request.TransactionId" />
+                        <button type="submit" class="btn btn-success">Duyệt</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

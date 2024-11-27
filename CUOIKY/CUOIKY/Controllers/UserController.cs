@@ -175,6 +175,94 @@ namespace CUOIKY.Controllers
             // Chuyển danh sách giao dịch tới View
             return View(orders);
         }
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                // Nếu dữ liệu không hợp lệ, trả về lại View với lỗi
+                return View(model);
+            }
 
+            // Kiểm tra tài khoản đã tồn tại chưa
+            var existingUser = await _context.Set<User>()
+                .FirstOrDefaultAsync(u => u.UserName == model.UserName);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError(string.Empty, "Username already exists.");
+                return View(model);
+            }
+
+            // Tạo user mới với RoleId mặc định là 2
+            var user = new User
+            {
+                UserName = model.UserName,
+                Password = model.Password, // Lưu trực tiếp mật khẩu
+                RoleId = 2,                // Gán RoleId mặc định là 2
+                CreatedDate = DateTime.UtcNow,
+                UserNameString = model.Name,
+            };
+
+            // Lưu user vào database
+            _context.Set<User>().Add(user);
+            await _context.SaveChangesAsync();
+
+            // Chuyển hướng sau khi đăng ký thành công
+            return RedirectToAction("Login");
+        }
+        [HttpGet]
+        public IActionResult TopUp()
+        {
+            // Kiểm tra người dùng đã đăng nhập chưa
+            var userSession = SessionHelper.GetObjectFromJson<UserModel>(HttpContext.Session, "user");
+            if (userSession == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> TopUp(decimal amount)
+        {
+            // Kiểm tra người dùng đã đăng nhập chưa
+            var userSession = SessionHelper.GetObjectFromJson<UserModel>(HttpContext.Session, "user");
+            if (userSession == null)
+            {
+                return RedirectToAction("Login");
+            }
+
+            if (amount <= 0)
+            {
+                ModelState.AddModelError(string.Empty, "Số tiền phải lớn hơn 0.");
+                return View();
+            }
+
+            // Lưu yêu cầu nạp tiền vào cơ sở dữ liệu
+            var topUpRequest = new Transaction
+            {
+                UserId = userSession.UserId,
+                Amount = amount,
+                RequestDate = DateTime.Now,
+                IsApproved = false
+            };
+
+            _context.Transactions.Add(topUpRequest);
+            await _context.SaveChangesAsync();
+
+            // Chuyển hướng đến trang thông báo
+            return RedirectToAction("TopUpProcessing");
+        }
+
+        public IActionResult TopUpProcessing()
+        {
+            return View();
+        }
     }
 }

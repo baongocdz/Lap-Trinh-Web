@@ -2,258 +2,264 @@
 @using X.PagedList
 @model IPagedList<CUOIKY.Repository.Models.Product>
 
-<div class="container">
+<div class="container mt-4">
 
-    <!-- Row chứa Top nạp tiền và YouTube clip -->
-    <div class="row mb-4">
-        <!-- Top nạp tiền -->
-        <!-- Top Nạp Tiền -->
-        <div class="col-md-6">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title text-center">TOP 5 NGƯỜI DÙNG CÓ SỐ DƯ CAO NHẤT</h5>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Hạng</th>
-                                <th>Tên</th>
-                                <th>Số dư</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+    <div class="container mt-4">
+        <!-- Row chứa Top nạp tiền và Image Carousel -->
+        <div class="row mb-4">
+            <!-- Top Nạp Tiền -->
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm border-0" style="background: none;">
+                    <div class="card-body">
+                        <h5 class="card-title text-center mb-4">TOP Nạp</h5>
+                        <div class="top-users">
                             @if (ViewBag.TopUsers != null && ViewBag.TopUsers.Count > 0)
                             {
                                 int rank = 1;
                                 foreach (var user in ViewBag.TopUsers)
                                 {
-                                    <tr>
-                                        <td>@rank</td>
-                                        <td>@user.UserNameString</td>
-                                        <td>@user.Balance?.ToString("#,##0") đ</td>
-                                    </tr>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <!-- Số thứ tự -->
+                                        <div class="rank-badge @((rank == 1) ? "top1" : "top-other")">
+                                            @rank
+                                        </div>
+                                        <!-- Tên người dùng -->
+                                        <div class="user-name flex-grow-1 ms-3">
+                                            <strong>@user.UserNameString</strong>
+                                        </div>
+                                        <!-- Số dư -->
+                                        <div class="balance-badge">
+                                            @user.Balance?.ToString("#,##0") đ
+                                        </div>
+                                    </div>
                                     rank++;
                                 }
                             }
                             else
                             {
-                                <tr>
-                                    <td colspan="3" class="text-center">Không có dữ liệu.</td>
-                                </tr>
+                                <div class="text-center">Không có dữ liệu.</div>
                             }
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Carousel -->
+            <div class="col-md-8">
+                <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <!-- Indicators/dots -->
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#imageCarousel" data-bs-slide-to="0" class="active"></button>
+                        <button type="button" data-bs-target="#imageCarousel" data-bs-slide-to="1"></button>
+                        <button type="button" data-bs-target="#imageCarousel" data-bs-slide-to="2"></button>
+                    </div>
+
+                    <!-- The slideshow/carousel -->
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="~/Image/Icons/anh1.png" alt="Image 1" class="d-block w-100" style="height: 300px; object-fit: cover;">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="~/Image/Icons/anh1.png" alt="Image 2" class="d-block w-100" style="height: 300px; object-fit: cover;">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="~/Image/Icons/anh1.png" alt="Image 3" class="d-block w-100" style="height: 300px; object-fit: cover;">
+                        </div>
+                    </div>
+
+                    <!-- Left and right controls/icons -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
                 </div>
             </div>
         </div>
-
-
-        <!-- YouTube clip -->
-        <div class="col-md-6">
-            <div class="ratio ratio-16x9">
-                <iframe src="@ViewBag.YouTubeLink" title="YouTube video" allowfullscreen></iframe>
-            </div>
-        </div>
     </div>
+
 
     <!-- Phần Tìm kiếm -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="search-container p-3 shadow-sm">
-                <form method="get" asp-action="Index">
-                    <!-- Dòng 1: Tìm kiếm theo ID sản phẩm và khoảng giá -->
-                    <div class="row g-3">
-                        <!-- Tìm kiếm theo ID sản phẩm -->
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
-                                <input type="number" name="productId" class="form-control" placeholder="ID Sản phẩm">
-                            </div>
-                        </div>
-
-                        <!-- Tìm kiếm theo khoảng giá -->
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-money-bill-wave"></i></span>
-                                <select name="priceRange" class="form-select">
-                                    <option value="">Chọn khoảng giá</option>
-                                    <option value="1">Acc từ 20K</option>
-                                    <option value="2">Acc từ 50K</option>
-                                    <option value="3">Acc từ 100K</option>
-                                    <option value="4">Acc từ 200K</option>
-                                    <option value="5">Acc từ 500K</option>
-                                    <option value="6">Acc trên 1 triệu</option>
-                                </select>
-                            </div>
-                        </div>
+    <div class="search-container p-4 mb-4 shadow-sm rounded">
+        <form method="get" asp-action="Index">
+            <!-- Dòng 1: Tìm kiếm theo ID sản phẩm, khoảng giá và Server -->
+            <div class="row g-3 align-items-center">
+                <!-- Tìm kiếm theo ID sản phẩm -->
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                        <input type="number" name="productId" class="form-control" placeholder="ID Sản phẩm">
                     </div>
+                </div>
 
-                    <!-- Dòng 2: Tìm kiếm theo Server và Hành tinh -->
-                    <div class="row g-3 mt-3">
-                        <!-- Tìm kiếm theo Server -->
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-server"></i></span>
-                                <select name="server" class="form-select">
-                                    <option value="">Server</option>
-                                    @for (int i = 1; i <= 12; i++)
-                                    {
-                                        <option value="@i">Server @i</option>
-                                    }
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Tìm kiếm theo Hành tinh -->
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fas fa-globe"></i></span>
-                                <select name="planet" class="form-select">
-                                    <option value="">Hành tinh</option>
-                                    <option value="1">Xayda</option>
-                                    <option value="2">Namec</option>
-                                    <option value="3">Trái đất</option>
-                                </select>
-                            </div>
-                        </div>
+                <!-- Tìm kiếm theo khoảng giá -->
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-money-bill-wave"></i></span>
+                        <select name="priceRange" class="form-select">
+                            <option value="">Khoảng giá</option>
+                            <option value="1">Từ 20K</option>
+                            <option value="2">Từ 50K</option>
+                            <option value="3">Từ 100K</option>
+                            <option value="4">Từ 200K</option>
+                            <option value="5">Từ 500K</option>
+                            <option value="6">Trên 1 triệu</option>
+                        </select>
                     </div>
+                </div>
 
-                    <!-- Dòng 3: Tìm kiếm theo Đệ tử và Bông tai -->
-                    <div class="row g-3 mt-3">
-                        <!-- Checkbox Đệ tử -->
-                        <div class="col-md-6">
-                            <div class="form-check d-flex align-items-center">
-                                <input type="checkbox" name="disciple" value="true" class="form-check-input me-2" id="chkDisciple">
-                                <label class="form-check-label" for="chkDisciple">
-                                    <i class="fas fa-user-friends"></i> Đệ tử
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Checkbox Bông tai -->
-                        <div class="col-md-6">
-                            <div class="form-check d-flex align-items-center">
-                                <input type="checkbox" name="portal" value="true" class="form-check-input me-2" id="chkPortal">
-                                <label class="form-check-label" for="chkPortal">
-                                    <i class="fas fa-ring"></i> Bông tai
-                                </label>
-                            </div>
-                        </div>
+                <!-- Tìm kiếm theo Server -->
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-server"></i></span>
+                        <select name="server" class="form-select">
+                            <option value="">Server</option>
+                            @for (int i = 1; i <= 12; i++)
+                            {
+                                <option value="@i">Server @i</option>
+                            }
+                        </select>
                     </div>
-
-                    <!-- Dòng 4: Nút Tìm kiếm -->
-                    <div class="row mt-4">
-                        <div class="col-md-12 text-center">
-                            <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="fas fa-search"></i> Tìm kiếm
-                            </button>
-                        </div>
-                    </div>
-                </form>
+                </div>
             </div>
-        </div>
+
+            <!-- Dòng 2: Tìm kiếm theo Hành tinh, Đệ tử, Bông tai -->
+            <div class="row g-3 align-items-center mt-3">
+                <!-- Tìm kiếm theo Hành tinh -->
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                        <select name="planet" class="form-select">
+                            <option value="">Hành tinh</option>
+                            <option value="1">Xayda</option>
+                            <option value="2">Namec</option>
+                            <option value="3">Trái đất</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dropdown Đệ tử -->
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user-friends"></i></span>
+                        <select name="disciple" class="form-select">
+                            <option value="">Đệ tử</option>
+                            <option value="true">Có</option>
+                            <option value="false">Không</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Dropdown Bông tai -->
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-ring"></i></span>
+                        <select name="portal" class="form-select">
+                            <option value="">Bông tai</option>
+                            <option value="true">Có</option>
+                            <option value="false">Không</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nút Tìm kiếm -->
+            <div class="row mt-4">
+                <div class="col-md-12 text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-5">
+                        <i class="fas fa-search"></i> Tìm kiếm
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 
-
-
-
-
     <!-- Phần hiển thị sản phẩm -->
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-3" style="--bs-gutter-x: 15px; --bs-gutter-y: 15px;">
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
         @foreach (var product in Model)
         {
             <div class="col">
-                <div class="card h-100 shadow-sm border-0 bg-dark text-light card-border-highlight">
-                    <!-- Image Container với chiều cao cố định -->
-                    <div class="img-container" style="height: 200px; overflow: hidden; position: relative;">
-                        <a href="~/Home/Details/@product.ProductId" style="display: block; height: 100%;">
+                <div class="card h-100 shadow-sm border-0">
+                    <!-- Image Container -->
+                    <div class="position-relative">
+                        <a href="~/Home/Details/@product.ProductId">
                             <img src="~/Image/@($"{product.Description?.Images?.FirstOrDefault()?.ImageName ?? "placeholder.png"}")"
                                  alt="Ảnh sản phẩm"
-                                 style="object-fit: cover; width: 100%; height: 100%;" />
+                                 class="card-img-top" style="height: 200px; object-fit: cover;" />
                         </a>
                         <!-- Product Title Overlay -->
-                        <div class="product-title-overlay text-light text-center p-1" style="position: absolute; bottom: 0; width: 100%; background-color: rgba(0, 0, 0, 0.8); font-size: 1rem;">
+                        <div class="product-title-overlay text-light text-center py-1 px-2" style="position: absolute; bottom: 0; width: 100%; background-color: rgba(0, 0, 0, 0.7);">
                             Acc Ngọc Rồng #@product.ProductId
                         </div>
                     </div>
 
-                    <!-- Card Body với thông tin sản phẩm -->
-                    <div class="card-body p-2 d-flex flex-column justify-content-between" style="font-size: 1rem;">
-                        <!-- Thông tin sản phẩm với dấu chấm đầu dòng -->
-                        <div class="product-info mb-2" style="flex-grow: 1;">
-                            <div style="font-size: 0.9rem;">
-                                @if (product.Description?.Server > 0)
-                                {
-                                    <div class="info-item">
-                                        • <span>Server: </span>@product.Description.Server
-                                    </div>
-                                }
-                                @if (product.Description?.Planet > 0)
-                                {
-                                    <div class="info-item">
-                                        • <span>Planet: </span>@product.Description.Planet
-                                    </div>
-                                }
-                                @if (product.Description?.Disciple == true)
-                                {
-                                    <div class="info-item">
-                                        • <span>Disciple: </span>Có
-                                    </div>
-                                }
-                            </div>
-                        </div>
+                    <!-- Card Body -->
+                    <div class="card-body">
+                        <!-- Thông tin sản phẩm -->
+                        <ul class="list-unstyled mb-3">
+                            @if (product.Description?.Server > 0)
+                            {
+                                <li><i class="fas fa-server text-primary me-2"></i>Server: @product.Description.Server</li>
+                            }
+                            @if (product.Description?.Planet > 0)
+                            {
+                                <li><i class="fas fa-globe text-success me-2"></i>Hành tinh: @GetPlanetName(product.Description.Planet)</li>
+                            }
+                            @if (product.Description?.Disciple == true)
+                            {
+                                <li><i class="fas fa-user-friends text-warning me-2"></i>Đệ tử: Có</li>
+                            }
+                        </ul>
 
-                        <!-- Hiển thị Giá ngay trên nút MUA NGAY -->
-                        <div class="text-warning fw-bold mb-2" style="font-size: 1.2rem; text-align: center;">
+                        <!-- Giá sản phẩm -->
+                        <div class="text-danger fw-bold mb-3" style="font-size: 1.4rem;">
                             @((product.Description?.Price.HasValue ?? false) ? product.Description.Price.Value.ToString("#,##0") + " đ" : "N/A")
                         </div>
 
-                        <!-- Button Section -->
-                        <div class="card-footer text-center border-0">
-                            <button class="btn-buy-now w-100" onclick="addToCart(@product.ProductId)">
-                                MUA NGAY
-                            </button>
-                        </div>
+                        <!-- Nút Mua ngay -->
+                        <button class="btn btn-success w-100" onclick="addToCart(@product.ProductId)">
+                            MUA NGAY
+                        </button>
                     </div>
                 </div>
             </div>
         }
     </div>
-</div>
-<!-- Phân trang -->
-<div class="d-flex justify-content-center mt-4">
-    @Html.PagedListPager(Model, page => Url.Action("Index", new
-        {
-            page,
-            productId = Context.Request.Query["productId"].ToString(),
-            priceRange = Context.Request.Query["priceRange"].ToString(),
-            server = Context.Request.Query["server"].ToString(),
-            planet = Context.Request.Query["planet"].ToString(),
-            disciple = Context.Request.Query["disciple"].ToString(),
-            portal = Context.Request.Query["portal"].ToString()
-        }),
-            new PagedListRenderOptions
-    {
-        LiElementClasses = new[] { "page-item" },
-        PageClasses = new[] { "page-link" },
-        UlElementClasses = new[] { "pagination" },
-        DisplayLinkToFirstPage = PagedListDisplayMode.Never,
-        DisplayLinkToLastPage = PagedListDisplayMode.Never,
-        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-        DisplayLinkToNextPage = PagedListDisplayMode.Always,
-        DisplayLinkToIndividualPages = true,
-        LinkToPreviousPageFormat = "Trước",
-        LinkToNextPageFormat = "Sau",
-    })
-</div>
-    
 
+    <!-- Phân trang -->
+    <div class="d-flex justify-content-center mt-4">
+        @Html.PagedListPager(Model, page => Url.Action("Index", new
+            {
+                page,
+                productId = Context.Request.Query["productId"].ToString(),
+                priceRange = Context.Request.Query["priceRange"].ToString(),
+                server = Context.Request.Query["server"].ToString(),
+                planet = Context.Request.Query["planet"].ToString(),
+                disciple = Context.Request.Query["disciple"].ToString(),
+                portal = Context.Request.Query["portal"].ToString()
+            }),
+                 new PagedListRenderOptions
+        {
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" },
+            UlElementClasses = new[] { "pagination" },
+            DisplayLinkToFirstPage = PagedListDisplayMode.Never,
+            DisplayLinkToLastPage = PagedListDisplayMode.Never,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+            DisplayLinkToIndividualPages = true,
+            LinkToPreviousPageFormat = "Trước",
+            LinkToNextPageFormat = "Sau",
+        })
+    </div>
+</div>
 
 <!-- Custom CSS -->
 <style>
     .search-container {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        border: 1px solid #ddd;
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
     }
 
     .input-group-text {
@@ -262,18 +268,8 @@
         border: none;
     }
 
-    .form-select, .form-control {
+    .form-control, .form-select {
         border-left: none;
-    }
-
-    .form-check-label i {
-        margin-right: 8px;
-        color: #007bff;
-    }
-
-    .btn-lg {
-        padding: 12px 20px;
-        font-size: 1.2rem;
     }
 
     .btn-primary {
@@ -281,19 +277,101 @@
         border: none;
     }
 
-    .btn-primary:hover {
-        background-color: #0056b3;
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    /* Responsive adjustments */
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
 
+    .product-title-overlay {
+        font-size: 1rem;
+    }
+
+    .card-body ul li {
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border: none;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+    @@media (max-width: 576px) {
+        .search-container .row .col-md-4 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+
+    .top-users .rank-badge {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: white;
+    }
+
+        .top-users .rank-badge.top1 {
+            background: gold;
+            border-radius: 50%;
+        }
+
+        .top-users .rank-badge.top-other {
+            background: #28a745;
+            border-radius: 50%;
+        }
+
+    .top-users .user-name {
+        font-size: 1rem;
+        color: white;
+        text-align: left;
+    }
+
+    .top-users .balance-badge {
+        background: #dc3545;
+        color: white;
+        font-size: 0.9rem;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 8px;
+        text-align: center;
+        min-width: 100px;
+    }
+
+    .top-users .d-flex {
+        margin-bottom: 15px;
+    }
+
+    /* Carousel Section */
+    #imageCarousel .carousel-item img {
+        border-radius: 10px;
+    }
+
+    .card-title {
+        font-weight: bold;
+        font-size: 1.5rem;
+        color: white; /* Tiêu đề màu trắng */
+    }
 </style>
-
-
 
 <!-- jQuery and AJAX Scripts -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script type="text/javascript">
+<script>
     function addToCart(productId) {
         $.ajax({
             url: '@Url.Action("AddToCart", "Cart")',
@@ -321,7 +399,10 @@
             }
         });
     }
-    functions {
+</script>
+
+<!-- Định nghĩa hàm GetPlanetName -->
+@functions {
     private string GetPlanetName(int? planetId)
     {
         switch (planetId)
@@ -337,39 +418,3 @@
         }
     }
 }
-
-</script>
-<style>
-    .search-container {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-    }
-
-    .input-group-text {
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-    }
-
-    .form-control, .form-select {
-        border-left: none;
-    }
-
-    .btn-search {
-        background-color: #007bff;
-        color: #fff;
-        font-weight: bold;
-        border: none;
-        padding: 10px 20px;
-    }
-
-        .btn-search:hover {
-            background-color: #0056b3;
-            color: #fff;
-        }
-
-    .form-check-label {
-        margin-left: 5px;
-    }
-
-</style>

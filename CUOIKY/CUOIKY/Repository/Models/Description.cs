@@ -19,6 +19,8 @@ public partial class Description
 
     public bool? Disciple { get; set; }
 
+    public int? ItemId { get; set; }
+
     public decimal? Price { get; set; }
 
     public DateTime? CreatedDate { get; set; }
@@ -28,6 +30,8 @@ public partial class Description
     public DateTime? UpdatedDate { get; set; }
 
     public virtual ICollection<Image> Images { get; set; } = new List<Image>();
+
+    public virtual Item? Item { get; set; }
 
     public virtual Product Product { get; set; } = null!;
 
