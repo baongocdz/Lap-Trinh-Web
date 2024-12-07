@@ -245,7 +245,7 @@ namespace CUOIKY.Controllers
             }
 
             // Lưu yêu cầu nạp tiền vào cơ sở dữ liệu
-            var topUpRequest = new Transaction
+            var topUpRequest = new Repository.Models.Transaction
             {
                 UserId = userSession.UserId,
                 Amount = amount,

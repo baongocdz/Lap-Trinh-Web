@@ -1,4 +1,6 @@
-﻿@model List<CUOIKY.Repository.Models.Product>
+﻿@using X.PagedList.Mvc.Core
+@using X.PagedList
+@model IPagedList<CUOIKY.Repository.Models.Product>
 
 <div class="container my-5">
     <h2 class="text-center">Quản lý sản phẩm</h2>
@@ -27,13 +29,13 @@
         <tbody>
             @foreach (var product in Model)
             {
-                <tr>
+                <tr id="product-@product.ProductId">
                     <td>@product.ProductId</td>
                     <td>@product.UserName</td>
-                    <td>@product.ProductTypeId</td>
+                    <td>@GetProductTypeName(product.ProductTypeId ?? 1)</td>
                     <td>@product.Quantity</td>
                     <td>@(product.StatusSell == true ? "Đang bán" : "Ngừng bán")</td>
-                    <td>@(product.Description?.Price?.ToString("C0") ?? "N/A")</td>
+                    <td>@(product.Description?.Price.HasValue == true ? product.Description.Price.Value.ToString("N0") + " đ" : "N/A")</td>
                     <td>
                         <a href="@Url.Action("EditProduct", "Admin", new { id = product.ProductId })" class="btn btn-warning btn-sm">Sửa</a>
                         <button class="btn btn-danger btn-sm" onclick="deleteProduct(@product.ProductId)">Xóa</button>
@@ -42,8 +44,138 @@
             }
         </tbody>
     </table>
+
+    <!-- Phân trang -->
+    <div class="d-flex justify-content-center mt-4">
+        @Html.PagedListPager(Model, page => Url.Action("ManageProducts", new { page }),
+             new PagedListRenderOptions
+        {
+            LiElementClasses = new[] { "page-item" },
+            PageClasses = new[] { "page-link" },
+            UlElementClasses = new[] { "pagination" },
+            DisplayLinkToFirstPage = PagedListDisplayMode.Never,
+            DisplayLinkToLastPage = PagedListDisplayMode.Never,
+            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+            DisplayLinkToIndividualPages = true,
+            LinkToPreviousPageFormat = "Trước",
+            LinkToNextPageFormat = "Sau",
+        })
+    </div>
 </div>
 
+<!-- Custom CSS -->
+<style>
+    .search-container {
+        background-color: #ffffff;
+        border: 1px solid #dee2e6;
+    }
+
+    .input-group-text {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+    }
+
+    .form-control, .form-select {
+        border-left: none;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .product-title-overlay {
+        font-size: 1rem;
+    }
+
+    .card-body ul li {
+        margin-bottom: 5px;
+        font-size: 0.9rem;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border: none;
+    }
+
+    .btn-success:hover {
+        background-color: #218838;
+    }
+
+    @@media (max-width: 576px) {
+        .search-container .row .col-md-4 {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+
+    .top-users .rank-badge {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: white;
+    }
+
+    .top-users .rank-badge.top1 {
+        background: gold;
+        border-radius: 50%;
+    }
+
+    .top-users .rank-badge.top-other {
+        background: #28a745;
+        border-radius: 50%;
+    }
+
+    .top-users .user-name {
+        font-size: 1rem;
+        color: white;
+        text-align: left;
+    }
+
+    .top-users .balance-badge {
+        background: #dc3545;
+        color: white;
+        font-size: 0.9rem;
+        font-weight: bold;
+        padding: 5px 10px;
+        border-radius: 8px;
+        text-align: center;
+        min-width: 100px;
+    }
+
+    .top-users .d-flex {
+        margin-bottom: 15px;
+    }
+
+    /* Carousel Section */
+    #imageCarousel .carousel-item img {
+        border-radius: 10px;
+    }
+</style>
+
+<!-- jQuery and AJAX Scripts -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- Bootstrap JS Bundle (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function deleteProduct(productId) {
         if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
@@ -53,11 +185,12 @@
         $.ajax({
             url: '@Url.Action("DeleteProduct", "Admin")',
             type: 'POST',
-            data: { id: productId },
+            data: { productId: productId }, // Đảm bảo tham số là productId
             success: function (response) {
                 if (response.success) {
                     alert(response.message);
-                    location.reload();
+                    // Xóa dòng sản phẩm khỏi bảng mà không cần reload trang
+                    $('#product-' + productId).remove();
                 } else {
                     alert(response.message);
                 }
@@ -67,4 +200,25 @@
             }
         });
     }
+
+    // Nếu bạn muốn cập nhật số lượng sản phẩm sau khi xóa mà không reload trang
+    // Bạn có thể thêm logic ở đây
 </script>
+
+<!-- Định nghĩa hàm GetProductTypeName trong View (hoặc bạn có thể lấy từ Controller) -->
+@functions {
+    private string GetProductTypeName(int productTypeId)
+    {
+        // Thay đổi theo logic của bạn để lấy tên loại sản phẩm từ ID
+        switch (productTypeId)
+        {
+            case 1:
+                return "Loại 1";
+            case 2:
+                return "Loại 2";
+            // Thêm các case khác nếu cần
+            default:
+                return "Không xác định";
+        }
+    }
+}

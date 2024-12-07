@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
 
 namespace CUOIKY.Models
 {
@@ -15,6 +16,7 @@ namespace CUOIKY.Models
         public string? Gmail { get; set; }
 
         // Thông tin mô tả
+        [AllowHtml]
         public string? DescriptionText { get; set; }
         public int? Server { get; set; }
         public int? Planet { get; set; }

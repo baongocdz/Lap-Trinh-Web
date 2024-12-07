@@ -1,4 +1,5 @@
-﻿@using CUOIKY.Models
+﻿@using System.Text.Json
+@using CUOIKY.Models
 @{
     ViewBag.Title = "Thống kê";
     var orderStats = ViewBag.OrderStats as List<OrderStatistics>;
@@ -6,80 +7,327 @@
     var combinedStats = ViewBag.CombinedStats as List<CombinedStatistics>;
 }
 
+<!-- Thêm CSS tùy chỉnh để điều chỉnh kích thước biểu đồ -->
+<style>
+    .chart-container {
+        position: relative;
+        height: 300px; /* Điều chỉnh chiều cao biểu đồ */
+        width: 100%;
+    }
+    @@media (max-width: 768px) {
+        .chart-container {
+            height: 200px; /* Điều chỉnh chiều cao biểu đồ cho màn hình nhỏ */
+        }
+    }
+</style>
+
 <div class="container mt-5">
-    <h2 class="text-center">Thống kê</h2>
+    <h2 class="text-center mb-4">Thống kê</h2>
     <form method="get" asp-action="Statistics" class="d-flex justify-content-center mb-4">
-        <select name="filter" class="form-select w-auto me-3">
-            <option value="month" selected>Thống kê theo tháng</option>
-            <option value="quarter">Thống kê theo quý</option>
-        </select>
-        <button type="submit" class="btn btn-primary">Xem thống kê</button>
+        <div class="input-group w-auto">
+            <select name="filter" class="form-select me-3">
+                <option value="month" selected>Thống kê theo tháng</option>
+                <option value="quarter">Thống kê theo quý</option>
+            </select>
+            <button type="submit" class="btn btn-primary">Xem thống kê</button>
+        </div>
     </form>
 
-    <h3 class="mt-4">Thống kê đơn hàng</h3>
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Kỳ</th>
-                <th>Tổng số đơn hàng</th>
-                <th>Tổng doanh thu (VNĐ)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var stat in orderStats)
-            {
-                <tr>
-                    <td>@stat.Period</td>
-                    <td>@stat.TotalOrders</td>
-                    <td>@stat.TotalRevenue.ToString("#,##0") đ</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <!-- Biểu đồ và bảng thống kê đơn hàng -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Thống kê đơn hàng</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Bảng thống kê đơn hàng -->
+                <div class="col-md-6 mb-3">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Kỳ</th>
+                                    <th>Tổng số đơn hàng</th>
+                                    <th>Tổng doanh thu (VNĐ)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var stat in orderStats)
+                                {
+                                    <tr>
+                                        <td>@stat.Period</td>
+                                        <td>@stat.TotalOrders</td>
+                                        <td>@stat.TotalRevenue.ToString("#,##0") đ</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-    <h3 class="mt-4">Thống kê nạp tiền</h3>
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Kỳ</th>
-                <th>Tổng số giao dịch nạp</th>
-                <th>Tổng số tiền nạp (VNĐ)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var stat in topUpStats)
-            {
-                <tr>
-                    <td>@stat.Period</td>
-                    <td>@stat.TotalTopUps</td>
-                    <td>@stat.TotalAmount.ToString("#,##0") đ</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                <!-- Biểu đồ thống kê đơn hàng -->
+                <div class="col-md-6 mb-3">
+                    <div class="chart-container">
+                        <canvas id="orderChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <h3 class="mt-4">Thống kê tổng hợp</h3>
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>Kỳ</th>
-                <th>Tổng số đơn hàng</th>
-                <th>Tổng doanh thu (VNĐ)</th>
-                <th>Tổng số giao dịch nạp</th>
-                <th>Tổng số tiền nạp (VNĐ)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var stat in combinedStats)
-            {
-                <tr>
-                    <td>@stat.Period</td>
-                    <td>@stat.TotalOrders</td>
-                    <td>@stat.TotalRevenue.ToString("#,##0") đ</td>
-                    <td>@stat.TotalTopUps</td>
-                    <td>@stat.TotalAmount.ToString("#,##0") đ</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <!-- Biểu đồ và bảng thống kê nạp tiền -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h4 class="mb-0">Thống kê nạp tiền</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Bảng thống kê nạp tiền -->
+                <div class="col-md-6 mb-3">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Kỳ</th>
+                                    <th>Tổng số giao dịch nạp</th>
+                                    <th>Tổng số tiền nạp (VNĐ)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var stat in topUpStats)
+                                {
+                                    <tr>
+                                        <td>@stat.Period</td>
+                                        <td>@stat.TotalTopUps</td>
+                                        <td>@stat.TotalAmount.ToString("#,##0") đ</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Biểu đồ thống kê nạp tiền -->
+                <div class="col-md-6 mb-3">
+                    <div class="chart-container">
+                        <canvas id="topUpChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Biểu đồ và bảng thống kê tổng hợp -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning text-white">
+            <h4 class="mb-0">Thống kê tổng hợp</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Bảng thống kê tổng hợp -->
+                <div class="col-md-6 mb-3">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Kỳ</th>
+                                    <th>Tổng số đơn hàng</th>
+                                    <th>Tổng doanh thu (VNĐ)</th>
+                                    <th>Tổng số giao dịch nạp</th>
+                                    <th>Tổng số tiền nạp (VNĐ)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var stat in combinedStats)
+                                {
+                                    <tr>
+                                        <td>@stat.Period</td>
+                                        <td>@stat.TotalOrders</td>
+                                        <td>@stat.TotalRevenue.ToString("#,##0") đ</td>
+                                        <td>@stat.TotalTopUps</td>
+                                        <td>@stat.TotalAmount.ToString("#,##0") đ</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Biểu đồ thống kê tổng hợp -->
+                <div class="col-md-6 mb-3">
+                    <div class="chart-container">
+                        <canvas id="combinedChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <!-- Thêm Chart.js từ CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Hàm để tạo biểu đồ đơn hàng
+        function renderOrderChart(labels, data) {
+            var ctx = document.getElementById('orderChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Tổng số đơn hàng',
+                        data: data,
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Giữ tỉ lệ khi thay đổi kích thước
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Hàm để tạo biểu đồ nạp tiền
+        function renderTopUpChart(labels, data) {
+            var ctx = document.getElementById('topUpChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Tổng số giao dịch nạp',
+                        data: data,
+                        fill: false,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Giữ tỉ lệ khi thay đổi kích thước
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Hàm để tạo biểu đồ tổng hợp
+        function renderCombinedChart(labels, orderData, topUpData) {
+            var ctx = document.getElementById('combinedChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Tổng số đơn hàng',
+                            data: orderData,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Tổng số giao dịch nạp',
+                            data: topUpData,
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Giữ tỉ lệ khi thay đổi kích thước
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                        },
+                        tooltip: {
+                            enabled: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Lấy dữ liệu từ ViewBag và khởi tạo các biểu đồ khi trang tải
+        document.addEventListener('DOMContentLoaded', function () {
+            var orderStats = @Html.Raw(JsonSerializer.Serialize(orderStats));
+            var topUpStats = @Html.Raw(JsonSerializer.Serialize(topUpStats));
+            var combinedStats = @Html.Raw(JsonSerializer.Serialize(combinedStats));
+
+            // Kiểm tra dữ liệu trong console
+            console.log("OrderStats:", orderStats);
+            console.log("TopUpStats:", topUpStats);
+            console.log("CombinedStats:", combinedStats);
+
+            // Biểu đồ đơn hàng
+            if (orderStats && orderStats.length > 0) {
+                var orderLabels = orderStats.map(stat => stat.Period);
+                var orderData = orderStats.map(stat => stat.TotalOrders);
+                renderOrderChart(orderLabels, orderData);
+            }
+
+            // Biểu đồ nạp tiền
+            if (topUpStats && topUpStats.length > 0) {
+                var topUpLabels = topUpStats.map(stat => stat.Period);
+                var topUpData = topUpStats.map(stat => stat.TotalTopUps);
+                renderTopUpChart(topUpLabels, topUpData);
+            }
+
+            // Biểu đồ tổng hợp
+            if (combinedStats && combinedStats.length > 0) {
+                var combinedLabels = combinedStats.map(stat => stat.Period);
+                var combinedOrderData = combinedStats.map(stat => stat.TotalOrders);
+                var combinedTopUpData = combinedStats.map(stat => stat.TotalTopUps);
+                renderCombinedChart(combinedLabels, combinedOrderData, combinedTopUpData);
+            }
+        });
+    </script>
+}

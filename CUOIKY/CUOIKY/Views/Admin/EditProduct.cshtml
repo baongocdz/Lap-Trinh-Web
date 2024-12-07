@@ -203,4 +203,10 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <!-- Thêm CKEditor từ CDN -->
+    <script src="https://cdn.ckeditor.com/4.16.2/standard/ckeditor.js"></script>
+    <script>
+        // Khởi tạo CKEditor cho textarea có id là "DescriptionText"
+        CKEDITOR.replace('DescriptionText');
+    </script>
 }

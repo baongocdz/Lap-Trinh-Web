@@ -17,6 +17,9 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;                 // Make session cookie accessible only via HTTP
     options.Cookie.IsEssential = true;              // Ensure session cookie is considered essential
 });
+
+// Add logging and antiforgery configuration
+builder.Services.AddLogging();
 builder.Services.AddAntiforgery(options =>
 {
     options.HeaderName = "RequestVerificationToken";
@@ -30,12 +33,11 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    app.UseHsts(); // Ensure HSTS is used in production
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
 app.UseSession();       // Enable session before authorization

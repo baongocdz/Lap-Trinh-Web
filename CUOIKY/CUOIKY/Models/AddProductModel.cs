@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Web.Mvc;
 
 namespace CUOIKY.Models
 {
@@ -11,7 +12,7 @@ namespace CUOIKY.Models
         public int Quantity { get; set; }
 
         [Required]
-        public bool StatusSell { get; set; }
+        public bool StatusSell { get; set; } = true;
 
         // Account Details
         public string? UserName { get; set; }
@@ -20,6 +21,7 @@ namespace CUOIKY.Models
 
         // Description fields
         [Required]
+        [AllowHtml] 
         public string DescriptionText { get; set; }
 
         public int? Server { get; set; }

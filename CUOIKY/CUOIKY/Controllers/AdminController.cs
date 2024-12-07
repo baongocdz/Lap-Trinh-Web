@@ -6,6 +6,8 @@ using System.IO;
 using CUOIKY.Helpers;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace CUOIKY.Controllers
 {
@@ -122,11 +124,15 @@ namespace CUOIKY.Controllers
                 return View(model);
             }
         }
-        public async Task<IActionResult> ManageProducts()
+        public IActionResult ManageProducts(int? page)
         {
-            var products = await _context.Products
+            int pageSize = 20; // Số sản phẩm trên mỗi trang
+            int pageNumber = page ?? 1;
+
+            var products = _context.Products
                 .Include(p => p.Description)
-                .ToListAsync();
+                .OrderBy(p => p.ProductId) // Bạn có thể sắp xếp theo tiêu chí khác nếu muốn
+                .ToPagedList(pageNumber, pageSize);
 
             return View(products);
         }
@@ -145,7 +151,8 @@ namespace CUOIKY.Controllers
             var product = await _context.Products
                 .Include(p => p.Description)
                 .Include(p => p.Description.Images)
-                .FirstOrDefaultAsync(p => p.ProductId == id);
+                .FirstOrDefaultAsync(p => p.ProductId == id );
+                //.FirstOrDefaultAsync(p => p.ProductId == id && !p.DeletedDate.HasValue);
 
             if (product == null)
             {
@@ -173,7 +180,41 @@ namespace CUOIKY.Controllers
 
             return View(model);
         }
+        [HttpPost]
+        public async Task<IActionResult> DeleteProduct(int productId)
+        {
+            try
+            {
+                // Tìm sản phẩm cần xóa
+                var product = await _context.Products
+                    .Include(p => p.Description)
+                    .FirstOrDefaultAsync(p => p.ProductId == productId);
 
+                if (product == null)
+                {
+                    return NotFound();
+                }
+
+                // Cập nhật trường DeletedDate cho sản phẩm
+                product.DeletedDate = DateTime.Now;
+
+                // Cập nhật trường DeletedDate cho mô tả (nếu có)
+                if (product.Description != null)
+                {
+                    product.Description.DeletedDate = DateTime.Now;
+                }
+
+                // Lưu thay đổi
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Sản phẩm đã được xóa." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Json(new { success = false, message = "Có lỗi xảy ra khi xóa sản phẩm. Vui lòng thử lại." });
+            }
+        }
         [HttpPost]
         public async Task<IActionResult> EditProduct(EditProductModel model)
         {
@@ -287,7 +328,7 @@ namespace CUOIKY.Controllers
             }
         }
         [HttpGet]
-        public async Task<IActionResult> ManageUsers()
+        public IActionResult ManageUsers(int? page)
         {
             // Kiểm tra quyền truy cập
             var userSession = SessionHelper.GetObjectFromJson<UserModel>(HttpContext.Session, "user");
@@ -297,7 +338,13 @@ namespace CUOIKY.Controllers
                 return RedirectToAction("Login", "User");
             }
 
-            var users = await _context.Users.ToListAsync();
+            int pageSize = 20; 
+            int pageNumber = page ?? 1;
+
+            var users = _context.Users
+                .OrderBy(u => u.UserId) 
+                .ToPagedList(pageNumber, pageSize);
+
             return View(users);
         }
         // GET: Admin/EditUser/5
@@ -379,16 +426,20 @@ namespace CUOIKY.Controllers
                 return View(model);
             }
         }
-        public async Task<IActionResult> TopUpRequests()
+        public IActionResult TopUpRequests(int? page)
         {
-            var pendingTopUps = await _context.Transactions
+            int pageSize = 10; 
+            int pageNumber = page ?? 1;
+
+            var pendingTopUps = _context.Transactions
                 .Include(t => t.User)
                 .Where(t => t.IsApproved == false)
                 .OrderBy(t => t.RequestDate)
-                .ToListAsync();
+                .ToPagedList(pageNumber, pageSize);
 
             return View(pendingTopUps);
         }
+
 
         // Duyệt yêu cầu nạp tiền
         [HttpPost]
